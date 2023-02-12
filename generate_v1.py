@@ -20,6 +20,15 @@ query = f"""
 {{
   user(login: \"{args.user}\") {{
     contributionsCollection(from: \"{start_date.isoformat()}\", to: \"{end_date.isoformat()}\") {{
+      commitContributionsByRepository {{
+        contributions(first: 5) {{
+          totalCount
+          nodes {{
+            commitCount
+            occurredAt
+          }}
+        }}
+      }}
       restrictedContributionsCount
       contributionCalendar {{
         totalContributions
@@ -40,6 +49,8 @@ if request.status_code == 200:
     result = request.json()
 else:
     raise Exception("Query failed to run by returning code of {}. {}".format(request.status_code, query))
+
+print(result)
 
 if int(result["data"]["user"]["contributionsCollection"]["restrictedContributionsCount"]) > 0:
     print("There is some hidden activity: " + str(result["data"]["user"]["contributionsCollection"]["restrictedContributionsCount"]))
